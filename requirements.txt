@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+httpx
+langchain
+langgraph
+langchain-community
+chromadb
+sentence-transformers
+ollama
+pytest
+pytest-asyncio
