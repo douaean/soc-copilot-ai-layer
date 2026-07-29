@@ -18,6 +18,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     wazuh_api_base_url: str = "https://localhost:55000"
+    wazuh_alerts_endpoint: str = "/alerts"
     wazuh_poll_interval_seconds: int = 5
 
     chroma_persist_directory: str = "./knowledge_base/chroma_store"

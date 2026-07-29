@@ -27,11 +27,21 @@ from typing import Any
 
 
 def build_grounded_prompt(alert_text: str, retrieved_docs: list[dict[str, Any]]) -> str:
-    """
-    Combines the alert and retrieved context into a single grounded
-    prompt for the LLM.
+    """Build a concise grounded prompt for the investigation workflow."""
+    context_snippets = []
+    for index, doc in enumerate(retrieved_docs[:3], start=1):
+        content = doc.get("content") or doc.get("text") or str(doc)
+        context_snippets.append(f"[{index}] {doc.get('title', 'Document')} - {content}")
 
-    TODO (M6): finalize prompt template, decide how many docs to include,
-    decide truncation strategy for long full_log fields.
-    """
-    raise NotImplementedError("Implement in Milestone 6.")
+    context_section = "\n\n".join(context_snippets) or "No relevant context was retrieved."
+
+    return (
+        "You are a security analysis assistant. Use the alert details and any "
+        "retrieved context to decide whether the alert should be auto-closed as a "
+        "false positive or escalated for threat intelligence review.\n\n"
+        "Alert:\n"
+        f"{alert_text}\n\n"
+        "Retrieved context:\n"
+        f"{context_section}\n\n"
+        "Provide structured feedback for correlation and an investigation score."
+    )

@@ -49,9 +49,41 @@ pip install -r requirements.txt
 uvicorn app.api.main:app --reload
 ```
 
+## Testing
+
+```bash
+.venv/bin/python3 -m pytest -q
+```
+
+## API
+
+- `POST /alerts/ingest` — ingest one or more alerts from Wazuh or the built-in mock dataset and run the investigation workflow.
+- `GET /alerts/sample` — return a sample set of structured mock alerts for demonstration.
+- `POST /investigation` — submit a single validated Wazuh alert payload for investigation and report generation.
+
+Example mock ingestion:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/alerts/ingest?mock=true"
+```
+
+Example direct investigation of a single alert:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/investigation" \
+  -H "Content-Type: application/json" \
+  -d '{"timestamp":"2026-07-28T17:00:00Z","rule":{"level":8,"description":"Possible brute force SSH login attempt","id":"1002"},"agent":{"id":"agent-01","name":"host-01.example.local","ip":"10.0.0.5"},"full_log":"Failed password for invalid user root from 10.0.0.10 port 22 ssh2"}'
+```
+
+The current implementation is structured so the orchestrator, LangGraph workflow, retrieval, and reporting layers are separated. A LangGraph-compatible fallback workflow is available so the API can be exercised while the full agent implementation and Chroma retrieval path are completed.
+
+## Demo workflow
+
+1. Request mock alerts from `GET /alerts/sample` or ingest them with `POST /alerts/ingest?mock=true`.
+2. The service validates every alert and uses correlation logic to identify likely false positives.
+3. If an alert is not auto-closed, the system performs a Tavily threat intelligence search and assigns a final investigation score.
+4. The response includes a structured investigation result and an analyst-facing report.
+
 ## Status
 
-Milestone 0-1 complete: problem framing, requirements, and core architecture
-decisions (FastAPI, LangGraph, ChromaDB, Ollama, polling ingestion) are
-finalized and documented in `docs/ARCHITECTURE.md`. Implementation begins
-at Milestone 2 (Ingestion Layer).
+Prototype ready for demonstration: the API can ingest mock or Wazuh alerts, validate them, correlate them, auto-close likely false positives, search for threat intelligence context against Tavily, and generate an analyst-facing report. The architecture remains modular so the next milestones can replace the fallback components with a production LangGraph/ChromaDB/LLM implementation.
