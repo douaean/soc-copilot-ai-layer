@@ -118,6 +118,9 @@ _CHECKPOINT_TYPES: tuple[type, ...] = (
     NodeName,
 )
 
+from app.correlation.correlation import correlate_alert
+from app.review.threat_intel import search_tavily
+
 
 def route_after_detection(state: AlertState) -> str:
     """

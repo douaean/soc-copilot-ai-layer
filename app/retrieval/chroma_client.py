@@ -26,16 +26,48 @@ class ChromaRetriever:
     """
     Thin wrapper around a Chroma collection for semantic retrieval.
 
-    NOTE: this is a skeleton. Implementation (collection setup, embedding
-    function wiring, top-k config, metadata filtering) happens in M5.
+    NOTE: this is a skeleton. We provide a keyword-based fallback so the
+    retrieval layer can be demonstrated without an installed vector DB.
     """
 
     def __init__(self, collection_name: str, persist_directory: str) -> None:
         self.collection_name = collection_name
         self.persist_directory = persist_directory
+        self._sample_documents = [
+            {
+                "id": "T1110",
+                "title": "Credential Access",
+                "content": "Brute force and password guessing attacks against remote services are mapped to MITRE ATT&CK technique T1110.",
+            },
+            {
+                "id": "T1021",
+                "title": "Remote Services",
+                "content": "Lateral movement techniques involving remote services such as SSH and RDP are captured under T1021.",
+            },
+            {
+                "id": "T1046",
+                "title": "Network Service Discovery",
+                "content": "Scanning and reconnaissance of network services is part of the ATT&CK technique T1046.",
+            },
+        ]
 
     def query(self, text: str, top_k: int = 5) -> list[dict[str, Any]]:
-        """
-        Returns the top_k most semantically similar documents to `text`.
-        """
-        raise NotImplementedError("Implement in Milestone 5.")
+        """Return a simple set of relevant documents for the given query text."""
+        if not text:
+            return self._sample_documents[:top_k]
+
+        query_text = text.lower()
+        matched = []
+        for document in self._sample_documents:
+            score = 0
+            if "ssh" in query_text and "remote services" in document["content"].lower():
+                score += 3
+            if "brute force" in query_text or "failed password" in query_text:
+                score += 5 if "credential access" in document["content"].lower() else 0
+            if "scan" in query_text or "recon" in query_text:
+                score += 4 if "network service discovery" in document["content"].lower() else 0
+            if score > 0:
+                matched.append((score, document))
+
+        matched.sort(key=lambda item: item[0], reverse=True)
+        return [doc for _, doc in matched][:top_k]

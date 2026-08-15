@@ -13,6 +13,8 @@ Why FastAPI (see docs/ARCHITECTURE.md §3.1):
 
 from fastapi import FastAPI
 
+from app.api.routers import alerts_router, investigation_router
+
 app = FastAPI(
     title="AI-Native SOC Copilot — AI Layer",
     description="Ingests Wazuh alerts, retrieves context, reasons via "
@@ -20,15 +22,19 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.include_router(
+    alerts_router,
+    prefix="/alerts",
+    tags=["alerts"],
+)
+app.include_router(
+    investigation_router,
+    prefix="/investigation",
+    tags=["investigation"],
+)
+
 
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     """Basic liveness check — confirms the API process is up."""
     return {"status": "ok"}
-
-
-# TODO (M2 onward): mount routers for /alerts (ingestion trigger/status),
-# /investigations (agent results), /reports (analyst reports) once those
-# modules are implemented. Keep routers in separate files under app/api/
-# and include them here with app.include_router(...) — do not grow this
-# file into a monolith.
