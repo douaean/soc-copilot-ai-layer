@@ -5,6 +5,7 @@ pydantic-settings
 httpx
 langchain
 langgraph
+langgraph-checkpoint-sqlite
 langchain-community
 chromadb
 sentence-transformers

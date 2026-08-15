@@ -7,3 +7,7 @@ knowledge_base/chroma_store/
 .pytest_cache/
 *.egg-info/
 .DS_Store
+
+# Detector artifacts: may contain raw secret values. Never commit.
+output/
+*sensitive_detection*.json

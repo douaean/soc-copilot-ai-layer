@@ -1,19 +1,4 @@
-"""
-Core — centralized configuration.
-
-Responsibility (and ONLY responsibility):
-    Load settings (from environment variables / .env) once, in one place.
-    Every other module should import `settings` from here rather than
-    reading os.environ directly.
-
-Why this matters for security (M12 preview):
-    Secrets (API keys, if any are ever added) should be pulled from
-    environment variables via this module, never hardcoded in source
-    files. This is also where you'd wire in a secret manager later if
-    the project moves toward production deployment.
-"""
-
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -26,8 +11,9 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model_name: str = "llama3"
 
-    class Config:
-        env_file = ".env"
+    checkpoint_database_path: str = "./checkpoints.sqlite"
+
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 settings = Settings()
